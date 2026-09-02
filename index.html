@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEGEND OF LA PAPITA 💜 Carta del 5to Mes</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-user-select:none; user-select:none; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#0b0414;
+    font-family:'Segoe UI', Arial, sans-serif; color:#fff; }
+  canvas#juego { position:fixed; inset:0; width:100%; height:100%; display:block; cursor:crosshair; }
+
+  .capa { position:fixed; inset:0; pointer-events:none; }
+  .oculto { display:none !important; }
+
+  /* ---------- PORTADA ---------- */
+  #pantallaInicio { display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; z-index:30; cursor:pointer; pointer-events:auto;
+    background:radial-gradient(ellipse at 50% 30%, rgba(255,80,180,.18), rgba(10,4,20,.88) 70%); }
+  #pantallaInicio .titulo { font-size:min(11vw,92px); font-weight:900; letter-spacing:.06em; line-height:1;
+    background:linear-gradient(180deg,#ffe27a,#ff9d2e 45%,#ff3d7f);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 18px rgba(255,150,60,.55)) drop-shadow(0 4px 0 rgba(120,10,60,.9));
+    text-transform:uppercase; }
+  #pantallaInicio .subtillo { margin-top:16px; font-size:clamp(14px,2.4vw,24px); letter-spacing:.3em;
+    text-transform:uppercase; color:#ffd7ea; text-shadow:0 0 14px #ff5ca8; }
+  #pantallaInicio .jigable { margin-top:6px; font-size:clamp(11px,1.5vw,14px); color:#c9a7ff; letter-spacing:.16em; }
+  #pantallaInicio .iniciar { margin-top:34px; font-size:clamp(16px,2.6vw,26px); font-weight:800; letter-spacing:.14em;
+    color:#fff; background:linear-gradient(90deg,#ff5ca8,#a05cff); padding:14px 46px; border-radius:999px;
+    animation:pulso 1.6s infinite; box-shadow:0 0 28px rgba(255,92,168,.6); }
+  @keyframes pulso { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+  #pantallaInicio .controles { margin-top:30px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-width:780px; }
+  #pantallaInicio .controles span { background:rgba(40,12,50,.75); border:1px solid rgba(255,110,190,.35);
+    padding:7px 12px; border-radius:10px; font-size:12.5px; color:#ffd7ea; }
+  #pantallaInicio .controles b { color:#ffe27a; }
+  #pantallaInicio .pista { margin-top:24px; font-size:13px; color:#9d8bb8; letter-spacing:.1em; }
+  .parpadea { animation:parpadea 1.4s infinite; }
+  @keyframes parpadea { 0%,100%{opacity:1} 50%{opacity:.25} }
+  /* ---------- HUD ---------- */
+  #hud { z-index:10; }
+  #hpW, #ultW { width:min(44vw,420px); height:22px; border-radius:999px; position:absolute; overflow:hidden;
+    background:rgba(0,0,0,.55); border:2px solid rgba(255,255,255,.35); }
+  #hpW { left:16px; top:16px; } #ultW { right:16px; top:16px; }
+  #hpLleno { position:absolute; inset:0; width:100%; background:linear-gradient(90deg,#ff4565,#ff93a7);
+    border-radius:999px; transition:width .22s ease; }
+  #ultLleno { position:absolute; inset:0; width:0%; background:linear-gradient(90deg,#7b2ff7,#cd8bff);
+    border-radius:999px; transition:width .25s ease; }
+  #hpText, #ultText { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:11.5px; font-weight:800; letter-spacing:.08em; text-shadow:0 1px 2px #000; }
+  #nucaCombo { position:absolute; top:54px; right:16px; text-align:right; }
+  #nucaCombo .n { font-size:40px; font-weight:900; color:#ffe27a; text-shadow:0 0 18px #ff9d2e; line-height:1; }
+  #nucaCombo .l { font-size:12px; letter-spacing:.35em; color:#ffd7ea; text-transform:uppercase; }
+
+  #bannerOleada { position:absolute; top:15%; left:50%; transform:translateX(-50%);
+    font-size:clamp(22px,4vw,44px); font-weight:900; letter-spacing:.3em; text-transform:uppercase;
+    color:#ffd7ea; text-shadow:0 0 22px #ff5ca8, 0 4px 0 rgba(120,10,60,.6); }
+  #bannerOleada small { display:block; font-size:clamp(11px,1.6vw,15px); letter-spacing:.18em;
+    color:#ffd78a; text-shadow:0 0 12px #ff9d2e; margin-top:6px; font-weight:600; }
+
+  #barrJefe { position:absolute; bottom:5%; left:50%; transform:translateX(-50%); width:min(74vw,860px); height:28px; }
+  #barrJefeFondo { position:absolute; inset:0; border-radius:999px; background:rgba(0,0,0,.6);
+    border:2px solid rgba(255,255,255,.35); }
+  #barrJefeLleno { position:absolute; inset:0; width:100%; background:linear-gradient(90deg,#a30,#ff3d2e);
+    border-radius:999px; transition:width .2s ease; }
+  #barrJefeTxto { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:900; letter-spacing:.2em; text-shadow:0 1px 2px #000; text-transform:uppercase; }
+
+  #cajaDialogo { position:absolute; bottom:11%; left:50%; transform:translateX(-50%);
+    width:min(88vw,820px); background:rgba(8,2,14,.88); border:2px solid rgba(255,110,190,.5);
+    border-radius:16px; padding:18px 24px; color:#ffe6f2; font-size:clamp(14px,2vw,20px);
+    text-align:center; line-height:1.5; box-shadow:0 0 30px rgba(255,92,168,.28); }
+  #cajaDialogo .sige { margin-top:8px; font-size:12px; color:#ff9a6d; letter-spacing:.25em; animation:parpadea 1s infinite; }
+
+  #penter { position:fixed; left:50%; top:50%; width:6px; height:6px; margin:-3px 0 0 -3px;
+    border-radius:50%; background:rgba(255,255,255,.85); box-shadow:0 0 8px #fff; z-index:5; }
+
+  #daos { z-index:6; }
+  .numDaño { position:fixed; transform:translate(-50%,-50%); font-weight:900; font-size:26px;
+    color:#ffe27a; text-shadow:0 0 10px #ff9d2e, 0 2px 0 #000; will-change:transform,opacity; }
+  .numDaño.crit { color:#7bdc8f; text-shadow:0 0 10px #3fbf67; font-size:34px; }
+  .numDaño.ult { color:#d9a8ff; font-size:44px; text-shadow:0 0 18px #a05cff; }
+  .numDaño.jefe { color:#ff6d6d; }
+
+  /* ---------- MUERTE ---------- */
+  #merte { display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:40;
+    text-align:center; background:radial-gradient(ellipse at center, rgba(60,0,20,.6), rgba(10,0,6,.94));
+    pointer-events:auto; cursor:default; }
+  #merte .tt { font-size:clamp(34px,8vw,80px); font-weight:900; color:#ffb3c1; text-shadow:0 0 30px #ff2d55; }
+  #merte .ss { margin:14px 0 30px; color:#ffd7ea; font-size:16px; line-height:1.6; }
+  #btnIntentar { font-size:16px; font-weight:800; letter-spacing:.12em; color:#fff;
+    background:linear-gradient(90deg,#ff5ca8,#a05cff); padding:12px 34px; border:none;
+    border-radius:999px; cursor:pointer; }
+
+  .vigneta { pointer-events:none; z-index:8; box-shadow:inset 0 0 140px 40px rgba(200,0,40,.55); }
+  /* flash blanco de los impact frames */
+  #flashBlanco { position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:25; }
+  /* aura azul de combo: degradado pulsante en los bordes de la pantalla */
+  #auraCombo { position:fixed; inset:0; pointer-events:none; z-index:9; opacity:0;
+    box-shadow: inset 0 0 110px 30px rgba(70,180,255,.5), inset 0 0 26px 8px rgba(170,235,255,.6);
+    transition: opacity .18s ease; }
+  #auraCombo.on { animation: auraPulso .28s ease-in-out infinite; }
+  @keyframes auraPulso { 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(2.2); } }
+  </style>
+</head>
+<body>
+  <canvas id="juego"></canvas>
+  <div id="penter"></div>
+  <div id="daos"></div>
+  <div id="flashBlanco"></div>
+  <div id="auraCombo"></div>
+
+  <!-- PORTADA -->
+  <div id="pantallaInicio" class="capa">
+    <div class="titulo">LEGEND OF LA PAPITA</div>
+    <div class="subtillo" id="subtilloUX">La papita caballera y el quinto mes</div>
+    <div class="jigable">Una aventura heroica pal él que más quiero 💜</div>
+    <div class="iniciar">▶ Clic para jugar</div>
+    <div class="controles">
+      <span><b>WASD</b> Moverse (según cámara)</span>
+      <span><b>Clic der. (arrastra)</b> Cámara / vista desde arriba</span>
+      <span><b>Clic izquierdo</b> Combo</span>
+      <span><b>Mantén izq</b> Golpe pesado (onda)</span>
+      <span><b>Mayús</b> Dash con esquiva</span>
+      <span><b>Ctrl</b> Escudo / Parry perfecto</span>
+      <span><b>Espacio</b> ULTIMATE PAPA SUPREMA</span>
+    </div>
+    <div class="pista parpadea">Una web sin internet: tu papita te está esperando 💜</div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="capa oculto">
+    <div id="hpW"><div id="hpLleno"></div><div id="hpText">❤ 100</div></div>
+    <div id="ultW"><div id="ultLleno"></div><div id="ultText">✨ ULTIMATE [ESPACIO]</div></div>
+    <div id="nucaCombo" class="oculto">
+      <div class="l">Combo</div><div class="n">1x</div>
+    </div>
+    <div id="bannerOleada"></div>
+    <div id="barrJefe" class="oculto">
+      <div id="barrJefeFondo"></div>
+      <div id="barrJefeLleno"></div>
+      <div id="barrJefeTxto"></div>
+    </div>
+  </div>
+
+  <!-- DIÁLOGO -->
+  <div id="cajaDialogo" class="capa oculto" style="pointer-events:auto;cursor:pointer">
+    <div id="txtDialogo"></div>
+    <div class="sige">▼ clic para continuar ▼</div>
+  </div>
+
+  <!-- MUERTE -->
+  <div id="merte" class="capa oculto">
+    <div class="tt">¡Te han papado!</div>
+    <div class="ss">Pero una papita valiente siempre resurge<br>toma tu espada y vuelve a luchar 💜</div>
+    <button id="btnIntentar">♻ INTENTAR DE NUEVO</button>
+  </div>
+  <!-- CARTA DEL 5TO MES -->
+  <div id="pantallaCarta" class="capa oculto">
+    <div id="cata">
+      <div class="sello">💜</div>
+      <div class="para" id="cartaPara">PARA MI NOVIA</div>
+      <div class="fecha" id="cartaFecha">💌 Quinto mes 💌</div>
+      <div class="tto" id="cartaTxto"></div>
+      <div class="firma" id="cartaFirma"></div>
+      <div class="pie">💜 Hecha con mucho amor (y papitas) 💜</div>
+    </div>
+    <div id="cataBottom">
+      <button class="btnCarta" id="btnOtraVez">♻ Jugar de nuevo</button>
+      <button class="btnCarta" id="btnFullscreen">⛶ Pantalla completa</button>
+    </div>
+  </div>
+
+  <style>
+    /* ---------- CARTA ---------- */
+    #pantallaCarta { display:flex; align-items:center; justify-content:center; z-index:50;
+      background:radial-gradient(ellipse at 50% 40%, rgba(60,15,70,.5), rgba(6,0,12,.92));
+      pointer-events:auto; }
+    #cata { width:min(92vw,640px); height:min(78vh,760px);
+      background:linear-gradient(180deg,#fff8ee,#ffd9e8 60%,#efc4ff);
+      border-radius:18px; box-shadow:0 0 60px rgba(255,140,220,.55), 0 18px 50px rgba(0,0,0,.5);
+      transform:rotate(-1.5deg); position:relative; padding:34px 38px; color:#3d1438; overflow:hidden; pointer-events:auto; }
+    #cata::before { content:""; position:absolute; inset:10px; border:2px solid rgba(255,92,168,.55); border-radius:12px; }
+    #cata .sello { position:absolute; top:-22px; left:50%; transform:translateX(-50%);
+      width:74px; height:74px; background:#ff4d6d; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; font-size:34px;
+      box-shadow:0 0 0 6px #ffd9e8, 0 6px 18px rgba(0,0,0,.35); }
+    #cata .para { text-align:center; font-size:clamp(18px,3vw,28px); font-weight:900; letter-spacing:.22em;
+      color:#b42d68; margin-top:24px; text-transform:uppercase; }
+    #cata .fecha { text-align:center; font-size:13px; letter-spacing:.3em; color:#c96a90; margin:6px 0 14px; }
+    #cata .tto { font-size:clamp(14px,1.9vw,17px); line-height:1.75; color:#4a1d3f; white-space:pre-wrap;
+      max-height:44vh; overflow-y:auto; padding-right:6px; pointer-events:auto; cursor:text;
+      -webkit-user-select:text; user-select:text; }
+    #cata .tto::-webkit-scrollbar { width:8px; }
+    #cata .tto::-webkit-scrollbar-track { background:rgba(255,140,220,.15); border-radius:4px; }
+    #cata .tto::-webkit-scrollbar-thumb { background:rgba(255,92,168,.6); border-radius:4px; }
+    #cata .firma { margin-top:18px; text-align:right; font-size:15px; font-style:italic; color:#8a2d5c; }
+    #cata .pie { position:absolute; bottom:10px; left:0; right:0; text-align:center; font-size:11px; color:#c96a90; letter-spacing:.2em; }
+    #cataBottom { position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
+      display:flex; gap:12px; width:min(90vw,640px); z-index:51; }
+    .btnCarta { flex:1; padding:12px 0; font-size:14px; font-weight:800; letter-spacing:.1em;
+      border:none; border-radius:999px; cursor:pointer; color:#fff; }
+    #btnOtraVez { background:linear-gradient(90deg,#ff5ca8,#a05cff); }
+    #btnFullscreen { background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.6); }
+    @media (max-width:700px){ #cata { padding:24px 18px; } }
+  </style>
+
+  <script src="lib/three.min.js"></script>
+  <script src="js/textos.js"></script>
+  <script src="js/juego.js"></script>
+</body>
+</html>
